@@ -43,6 +43,28 @@ numl = list(map(int, lines[0].split(': ')[1].split(' ')))
 for i in range(len(numl)//2):
     seeds.append((numl[i*2], numl[i*2+1]))
 
+'''
+Using "intervals of seeds" splitting them when needed and following the steps as
+written in the problem description. Also used a nested if with changes.
+What I draw to be able to think about the intersections without tripping on
+off-by-ones or similar traps was something like this:
+transformation                :      [   ]
+interval start/stop positions :  |     |     |
+                         name :  S     M     B
+Where
+"S" is a smaller than the beginning of the transformation range
+"M" is between the beginning and the end of the transformation range
+"B" is bigger than the transformation range
+Then the begin/end of an interval can only be
+"S/S": No splits, non-shifting
+"S/M": Splits in two (non-shifting, shifting)
+"S/B": Splits in three (non-shifting, shifting, non-shifting)
+"M/M": No splits, shifting
+"M/B": Splits in two (shifting, non-shifting)
+"B/B": No splits, non-shifting
+It loops through all intervals through all transformations in ~50ms
+'''
+
 pprint(seeds)
 l = 2
 while l < len(lines):
@@ -82,14 +104,14 @@ while l < len(lines):
                     # SS
                     pass
             elif seed_src <= srcl + length - 1:
-                # 1M
+                # Mx
                 if seed_src + seed_len - 1 <= srcl + length - 1:
                     # MM
                     pendingseeds.remove(seed)
                     # Transpose it all
                     seeds.append((dstl + seed_src - srcl, seed_len))
                 else:
-                    # MG
+                    # MB
                     pendingseeds.remove(seed)
                     # Add back the "tail"
                     pendingseeds.append(
@@ -98,7 +120,7 @@ while l < len(lines):
                     seeds.append(
                         (dstl+seed_src-srcl, length - seed_src + srcl))
             else:
-                # 1G => GG
+                # Bx => BB
                 pass
         oldseeds = pendingseeds
         l += 1
