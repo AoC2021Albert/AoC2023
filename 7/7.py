@@ -1,16 +1,10 @@
 #!/usr/bin/env python
 
 from collections import defaultdict
-from pprint import pprint
-from functools import reduce
-from operator import mul
-import re
 
-#f = open("7/sample.raw", "r")
 f = open("7/in.raw", "r")
 lines = f.read().splitlines()
 
-#seeds = set(map(int, lines[0].split(': ')[1].split(' ')))
 CARDVALUE={
     'A': 13,
     'K': 12,
@@ -26,38 +20,41 @@ CARDVALUE={
     '3':2,
     '2':1
 }
-res = 0
-hands = []
-for l, line in enumerate(lines):
-    hand, bid = line.split(' ')
-    hand  = list(hand)
-    equals = defaultdict(int)
-    cardvalues = 0
-    jokers = 0
-    for card in hand:
-        if card=='J':
-            jokers+=1
-            cardvalues = 0 + cardvalues * 14
+
+def solve(joker_card):
+    res = 0
+    hands = []
+    for line in lines:
+        hand, bid = line.split(' ')
+        jokers = 0                 # How many jokers in our hand?
+        repeats = defaultdict(int) # Repetitions keyed by card
+        # card_values will be a base14 value of the hand cards (no "type")
+        card_values = 0
+        for card in hand:
+            if card==joker_card:
+                jokers+=1
+                card_values = 0 + card_values * 14
+            else:
+                card_values = CARDVALUE[card] + card_values * 14
+                repeats[card]+=1
+        # repetition_list is a sorted list of how many of a kind
+        # for example "full house" will be [3,2]
+        # this allows for natural ordering of "types"
+        repetition_list = [v for v in sorted(repeats.values(),reverse=True)]
+        # Joker calculations
+        if len(repetition_list)==0:
+            repetition_list = [5] # 5 jokers
         else:
-            cardvalues = CARDVALUE[card] + cardvalues * 14
-            equals[card]+=1
-#    handvalue = cardvalues
-    repetitionlist = [v for v in sorted(equals.values(),reverse=True)]
-    if len(repetitionlist)==0:
-        repetitionlist = [5] # 5 jokers
-    else:
-        repetitionlist[0]+=jokers
-#    for k, v in equals.items():
-#        handvalue += (pow(14*14*14*14*14*14,v))
-    hands.append((repetitionlist, cardvalues, bid,hand,cardvalues,equals))
-hands.sort()
-lhands = len(hands)
-for i, bid in enumerate([h[2] for h in hands]):
-    print(f'adding ${int(bid)} with weigth ${lhands-i}')
-    res+=int(bid)*(i+1)
+            repetition_list[0]+=jokers
+        # The two first elements of the tuple will now contain
+        # the natural ordering of the hands
+        # The third element is there to retrieve at the end
+        hands.append((repetition_list, card_values, bid))
+    hands.sort()
+    # We can now calculate the winnings
+    for i, bid in enumerate([h[2] for h in hands]):
+        res+=int(bid)*(i+1)
+    return(res)
 
-
-pprint(hands)
-
-print(res)
-
+print(solve(''))
+print(solve('J'))
