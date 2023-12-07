@@ -33,14 +33,23 @@ for l, line in enumerate(lines):
     hand  = list(hand)
     equals = defaultdict(int)
     cardvalues = 0
+    jokers = 0
     for card in hand:
-        cardvalues = CARDVALUE[card] + cardvalues * 14
-        equals[card]+=1
+        if card=='J':
+            jokers+=1
+            cardvalues = 0 + cardvalues * 14
+        else:
+            cardvalues = CARDVALUE[card] + cardvalues * 14
+            equals[card]+=1
 #    handvalue = cardvalues
-    repetitionstring = [str(v) for v in sorted(equals.values(),reverse=True)]
+    repetitionlist = [v for v in sorted(equals.values(),reverse=True)]
+    if len(repetitionlist)==0:
+        repetitionlist = [5] # 5 jokers
+    else:
+        repetitionlist[0]+=jokers
 #    for k, v in equals.items():
 #        handvalue += (pow(14*14*14*14*14*14,v))
-    hands.append((repetitionstring, cardvalues, bid,hand,cardvalues,equals))
+    hands.append((repetitionlist, cardvalues, bid,hand,cardvalues,equals))
 hands.sort()
 lhands = len(hands)
 for i, bid in enumerate([h[2] for h in hands]):
