@@ -11,38 +11,48 @@ f = open("11/in.raw", "r")
 lines = f.read().splitlines()
 
 EXPANSE=999999
-res=0
-offsetcols=[0]*len(lines[0])
-offsetlines=[0]*len(lines)
-emptycols=[True]*len(lines[0])
-emptyline="."*len(lines[0])
-for i, line in enumerate(lines):
-    if line==emptyline:
-        for j in range(i+1,len(lines)):
-           offsetlines[j]+=EXPANSE
-    for i, c in enumerate(line):
-        if c == '#':
-            emptycols[i]=False
-for i, empty in enumerate(emptycols):
-    if empty:
-        for j in range(i+1,len(lines[0])):
-            offsetcols[j]+=EXPANSE
-stars = []
-print(offsetlines,offsetcols)
 
-for y, line in enumerate(lines):
-    for x,c in enumerate(line):
-        if line[x]=='#':
-            print(f'start at {(y,x)} goes to {(y+offsetlines[y],x+offsetcols[x])}')
-            stars.append((y+offsetlines[y],x+offsetcols[x]))
+def star_distance(map, EXPANSE):
+    ret=0
+    offsetcols=[0]*len(map[0])
+    offsetrows=[0]*len(map)
+    emptycols=[True]*len(map[0])
+    # Scan de map row by row
+    for y, row in enumerate(map):
+        # If no stars in row
+        if row.find('#')==-1:
+            # Add EXPANSE offset to subsequent rows
+            for i in range(y+1,len(map)):
+               offsetrows[i]+=EXPANSE
+        # Detect Columns that have stars on this row
+        for x, c in enumerate(row):
+            if c == '#':
+                emptycols[x]=False
 
-for i, star in enumerate(stars):
-    for j in range(i+1,len(stars)):
-        pprint((star,stars[j]))
-        res+=abs(star[0]-stars[j][0])
-        print(res)
-        res+=abs(star[1]-stars[j][1])
-        print(res)
+    # For each column
+    for x, is_empty in enumerate(emptycols):
+        if is_empty:
+            # Add EXPANSE offset to subsecuent columns
+            for i in range(x+1,len(map[0])):
+                offsetcols[i]+=EXPANSE
 
+    # With offsetcols and offsetrows ready
+    # find real position of stars
+    stars = []
+    for y, row in enumerate(map):
+        for x, c in enumerate(row):
+            if row[x]=='#':
+                stars.append((y+offsetrows[y],x+offsetcols[x]))
 
-print(res)
+    # The distance is the X-distance + Y-distance
+    # For each star
+    for i, star in enumerate(stars):
+        # Check distance to subsequent stars
+        for j in range(i+1,len(stars)):
+            ret+=abs(star[0]-stars[j][0])
+            ret+=abs(star[1]-stars[j][1])
+
+    return(ret)
+
+print(f'Part 1: {star_distance(lines,1)}')
+print(f'Part 2: {star_distance(lines,999999)}')
