@@ -1,12 +1,4 @@
 #!/usr/bin/env python
-from collections import defaultdict
-from pprint import pprint
-from functools import reduce
-from operator import mul
-import re
-import math
-import copy
-
 f = open("14/in.raw", "r")
 #f = open("14/sample.raw", "r")
 rawlines = f.read().splitlines()
@@ -61,18 +53,6 @@ def fall(direction,lines):
                     topmost[j] = row
                 else:
                     topmost[j] = column
-    #print()
-    #print(f'moved in {direction}')
-    #for line in lines:
-    #    print(''.join(line))
-    #print()
-
-#print(weight(lines))
-#print()
-#print(f'starting pos')
-#for line in lines:
-#    print(''.join(line))
-#print()
 
 def findloop(lines):
     seen={}
