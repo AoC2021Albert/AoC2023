@@ -25,26 +25,18 @@ def solve(lines, get_data):
     # https://en.wikipedia.org/wiki/Shoelace_formula for area
     area = 0.0
     pos = 0+0j
-    direction, steps = get_data(lines[-1])  # Direction of last
     for line in lines:
-        new_direction, steps = get_data(line)
-        new_pos = pos+next_step[new_direction] * steps
+        direction, steps = get_data(line)
+        new_pos = pos+next_step[direction] * steps
         area += pos.real * new_pos.imag
         area -= pos.imag * new_pos.real
-        # shoelace area "extension" for corners
-        if new_direction == (direction + 1) % 4:
-            area += 3/2
-        else:
-            area += 1/2
-        # shoelace area "extension" for lines
-        area += steps - 1
-
+        # Add border area (will be divided by 2)
+        area += steps
         pos = new_pos
-        direction = new_direction
     new_pos = 0+0j
     area += pos.real * new_pos.imag
     area -= pos.imag * new_pos.real
-    area = area / 2
+    area = area / 2 + 1
     return (int(area))
 
 
