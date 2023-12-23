@@ -20,8 +20,8 @@ DESTFORK = (len(lines)-1,len(lines[-1])-2)
 # find_forks
 forks={SRCFORK: [2],
        DESTFORK: [0]}
-for y in range(1,len(lines)-2):
-     for x in range(1,len(lines)-2):
+for y in range(1,len(lines)-1):
+     for x in range(1,len(lines[0])-1):
           if lines[y][x]!='#':
               dirs = []
               for d in range(4):
