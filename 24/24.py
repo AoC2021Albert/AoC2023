@@ -5,6 +5,8 @@ from functools import reduce
 from operator import mul
 import re
 import math
+from sympy import Symbol, solve_poly_system
+
 
 f = open("24/in.raw", "r")
 LOW =200000000000000
@@ -46,6 +48,9 @@ def intersect_line_eq(h1, h2):
         if c == d:
             print('OVERLAPPING')
             pprint(le1, le2)
+        print('paralel:', h1, h2)
+        print(hailstones[h1])
+        print(hailstones[h2])
         return(False) # paralel
     else:
         x = (d-c)/(a-b)
@@ -69,27 +74,30 @@ for h1 in range(lh):
             res+=1
 print(res)
 
-exit()
+# Part 2
+x = Symbol('x')
+y = Symbol('y')
+z = Symbol('z')
+vx = Symbol('vx')
+vy = Symbol('vy')
+vz = Symbol('vz')
 
+eqs = []
+ts = []
 
+for i, hs in enumerate(hailstones[:3]):
+  x0,y0,z0 = hs[0]
+  xv,yv,zv = hs[1]
+  t = Symbol('t'+str(i))
+  eqx = x + vx*t - x0 - xv*t
+  eqy = y + vy*t - y0 - yv*t
+  eqz = z + vz*t - z0 - zv*t
 
-def intersect2d(h1, h2):
-    x1,y1,z1=h1[0]
-    vx1,vy1,vz1=h1[1]
-    x2,y2,z2=h2[0]
-    vx2,vy2,vz2=h2[1]
-    slope1 = vy1 / vx1
-    slope2 = vy2 / vx2
-    if slope1 == slope2:
-        return(0) #assuming no two hailstones will have same path (even delayed in time or with different speeds)
+  eqs.append(eqx)
+  eqs.append(eqy)
+  eqs.append(eqz)
+  ts.append(t)
 
-lh=len(hailstones)
-res=0
-for h1 in range(lh):
-    x1,y1,z1=hailstones[h1][0]
-    vx1,vy1,vz1=hailstones[h1][1]
-    # put x just before LOW
-    for h2 in range(h1+1,lh):
-        x2,y2,z2=h2[0]
-        vx2,vy2,vz2=h2[1]
-        res += intersect2d(hailstones[h1], hailstones[h2])
+# https://docs.sympy.org/latest/modules/solvers/solvers.html#systems-of-polynomial-equations
+result = solve_poly_system(eqs,x,y,z,vx,vy,vz,ts[0],ts[1],ts[2])
+print(sum(result[0][:3]))
